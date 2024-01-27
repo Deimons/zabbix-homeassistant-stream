@@ -1,0 +1,60 @@
+
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+rest_command:
+  receive_metrics:
+    url: "http://localhost:8123/api/webhook/receive_metrics"
+    method: "post"
+    content_type: "application/json"
+    payload: '{"host": {{ host }}, "groups": {{ groups }}, "item_tags": {{ item_tags }}, "itemid": {{ itemid }}, "name": {{ name }}, "clock": {{ clock }}, "ns": {{ ns }}, "value": {{ value }}, "type": {{ type }}}'
+
+input_number:
+  sensor_template_value:
+    name: "Sensor Template Value"
+    min: 0
+    max: 100
+    step: 0.1
+
+script:
+  process_metric_data:
+    sequence:
+      - service: persistent_notification.create
+        data_template:
+          message: "Received metric data - Host: {{ host }},Item Name: {{ name }}, Value: {{ value }}"
+  set_sensor_template_value:
+    sequence:
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.sensor_template_value
+          value: "{{ value }}"
+
+automation:
+  - alias: "Handle Incoming Metrics"
+    trigger:
+      platform: webhook
+      webhook_id: receive_metrics
+    action:
+    - service: script.set_sensor_template_value
+      data_template:
+        value: "{{ trigger.json.value }}"
+    - service: script.process_metric_data
+      data_template:
+        host: "{{ trigger.json.host }}"
+        value: "{{ trigger.json.value }}"
+        name: "{{ trigger.json.name }}"
+
+sensor:
+  - platform: template
+    sensors:
+      dynamic_template_sensor:
+        value_template: "{{ states('input_number.sensor_template_value') | round(1) }}"
+

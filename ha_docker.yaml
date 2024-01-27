@@ -1,0 +1,13 @@
+version: '3'
+services:
+  homeassistant:
+    container_name: homeassistant_local
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    ports:
+      - 8123:8123
+    volumes:
+      - /Users/dmitryl/ZabbixWork/ha:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    privileged: true
