@@ -3,7 +3,7 @@ Stream your History data and Events from Zabbix straight to your Home Assistant
 
 These are configuration files used in Tutorial video on how to Stream Data from your Zabbix installation to Home assistant.
 Please follow YouTube video for more detailed steps:
-Youtube video: https://www.youtube.com/@DmitryLambert
+Youtube video: https://youtu.be/lIEjfo93w9I
 
 Zabbix is running from official Zabbix docker files:
 https://github.com/zabbix/zabbix-docker
